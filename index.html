@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Rose Day</title>
+    <style>
+        /* CSS STYLING */
+        body {
+            background-color: #ffc1d1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden; /* Prevents scrollbars from floating hearts */
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 320px;
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .card.active { display: block; }
+
+        h1, h2 { color: #d63384; font-family: 'Georgia', serif; }
+
+        p { color: #555; line-height: 1.6; }
+
+        .btn {
+            background: #ff4d6d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover { transform: scale(1.05); }
+
+        /* Photo Grid */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .photo-box {
+            background: #fce4ec;
+            height: 120px; 
+            border-radius: 10px;
+            overflow: hidden; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffccd5;
+        }
+
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            display: block;
+        }
+
+        /* Rose Game */
+        .game-rose {
+        width: 80px; 
+        height: auto;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        margin: 5px;
+        filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+    }
+
+    .game-rose:hover {
+        transform: scale(1.1);
+    }
+
+    /* Animation for wrong choice */
+    .shake {
+        animation: shakeAnim 0.5s ease;
+    }
+
+    @keyframes shakeAnim {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+
+    .rose-selection {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+        /* Floating Hearts Background */
+        .heart {
+            position: absolute;
+            color: rgba(255, 77, 109, 0.6);
+            user-select: none;
+            pointer-events: none;
+            animation: float 5s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="heart-container"></div>
+
+    <div class="container">
+        <div id="screen1" class="card active">
+            <h1>Happy Rose Day Baby</h1>
+            <div style="font-size: 60px;">🌹</div>
+            <p>A rose for the person who makes my world more beautiful just by being in it ✨</p>
+            <button class="btn" onclick="startExperience()">Open Memories</button>
+        </div>
+
+        <div id="screen2" class="card">
+            <h2>Our Love Moments</h2>
+            <div class="photo-grid">
+                <div class="photo-box"><img src="photo/1.jpeg" alt="Moment 1"></div>
+                <div class="photo-box"><img src="photo/2.jpeg" alt="Moment 2"></div>
+                <div class="photo-box"><img src="photo/3.jpeg" alt="Moment 3"></div>
+                <div class="photo-box"><img src="photo/4.jpeg" alt="Moment 4"></div>
+            </div>
+            <p>Every moment with you is a treasure🥰.</p>
+            <button class="btn" onclick="showScreen(3)">Pick a Rose</button>
+        </div>
+
+        <div id="screen3" class="card">
+            <h2>Pick a Rose</h2>
+            <p>One of these roses holds a secret message...</p>
+            <div class="rose-selection">
+                <img src="photo/Rose Outline Cartoon.jpg" class="game-rose" onclick="checkRose(this, false)">
+                <img src="photo/Rose Outline Cartoon.jpg" class="game-rose" onclick="checkRose(this, true)">
+                <img src="photo/Rose Outline Cartoon.jpg" class="game-rose" onclick="checkRose(this, false)">
+            </div>
+            <p id="msg" style="font-weight: bold;"></p>
+        </div>
+
+        <div id="screen4" class="card">
+            <h2>From My Heart</h2>
+            <p><i>Just like a rose, your love fills my life with fragrance and color. I promise to keep our love blooming forever.</i></p>
+            <p><strong>Always Yours ❤️</strong></p>
+            <button class="btn" onclick="showScreen(5)">One Final Note</button>
+        </div>
+
+        <div id="screen5" class="card">
+            <h1>I Love You Gungun</h1>
+            <div style="font-size: 50px;">💖😘</div>
+            <p>Thank you for being my constant bloom. Wishing you a day as beautiful as your smile.</p>
+            <button class="btn" onclick="location.reload()">Start Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Start Music and Go to Screen 2
+        function startExperience() {
+            const music = document.getElementById('bg-music');
+            music.play().catch(e => console.log("Music play blocked until interaction"));
+            showScreen(2);
+        }
+
+        // NAVIGATION LOGIC
+        function showScreen(num) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.getElementById('screen' + num).classList.add('active');
+        }
+
+        // GAME LOGIC
+        function checkRose(element, isCorrect) {
+        const msg = document.getElementById('msg');
+        
+        if(isCorrect) {
+            msg.style.color = "#d63384";
+            msg.innerText = "You found it! Opening your letter...";
+            element.style.transform = "scale(1.3)";
+            setTimeout(() => showScreen(4), 1500);
+        } else {
+            // Add shake class
+            element.classList.add('shake');
+            msg.style.color = "#888";
+            msg.innerText = "This rose is pretty, but try another!";
+            
+            // Remove shake class after animation so it can be triggered again
+            setTimeout(() => {
+                element.classList.remove('shake');
+            }, 500);
+        }
+    }
+
+        // BACKGROUND ANIMATION
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            document.getElementById('heart-container').appendChild(heart);
+            
+            setTimeout(() => { heart.remove(); }, 5000);
+        }
+        setInterval(createHeart, 300);
+    </script>
+</body>
+</html>
